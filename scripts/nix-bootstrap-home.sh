@@ -10,6 +10,7 @@ FEDORA_PKGS='https://pkgs.fedoraproject.org/repo/pkgs'
 BZ2_VERSION=1.0.6
 CURL_VERSION=7.35.0
 SQLITE_YEAR=2017; SQLITE_VERSION=3190200
+XZ_VERSION=5.2.3
 
 DBI_VERSION=1.636       ; DBI_HASH=60f291e5f015550dde71d1858dfe93ba
 DBD_SQLITE_VERSION=1.52 ; DBD_SQLITE_HASH=a54c2e8ab74587c3b6f8045fddc5aba5
@@ -18,9 +19,12 @@ NIX_VERSION=1.11.9
 
 export PATH=$NIX_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$NIX_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-export LDFLAGS="-L$NIX_DIR/lib $LDFLAGS"
-export CPPFLAGS="-I$NIX_DIR/include $CPPFLAGS"
-# TODO is this still right?
+
+export  LDFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $LDFLAGS"
+export CPPFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $CPPFLAGS"
+export CXXFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $CXXFLAGS"
+
+# TODO is this right?
 # export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib64/perl5 -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
 export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib/perl5/x86_64-linux-thread-multi -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
 
@@ -117,6 +121,21 @@ build_bzip2() {
   fi
 }
 
+build_xz() {
+  # this is an attempt at solving nix's "no package liblzma found" error
+  cd $NIX_DIR
+  if [ ! -e xz-${XZ_VERSION}.tar.gz ]; then
+    wget "https://tukaani.org/xz/xz-${XZ_VERSION}.tar.gz"
+  fi
+  if [ ! -e $NIX_DIR/lib/liblzma.so ]; then
+    tar xzvf xz-*.gz
+    cd xz-*
+    ./configure --prefix=$NIX_DIR
+    make
+    make install
+  fi
+}
+
 build_nix() {
   cd $NIX_DIR
   if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
@@ -152,9 +171,8 @@ main() {
   build_dbi
   build_dbdsqlite
   build_wwwcurl
-
-  # TODO fix "no package liblzma found"... by downloading it? or sending a support email?
-  # build_nix
+  build_xz
+  build_nix
 }
 
 main
