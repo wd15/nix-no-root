@@ -5,30 +5,38 @@
 
 NIX_BOOT_DIR=$HOME/nix-boot
 
+NIX_VERSION=1.6.1
+BZ2_VERSION=1.0.6
+CURL_VERSION=7.35.0
+DBI_VERSION=1.631
+DBD_SQLITE_VERSION=1.40
+WWW_CURL_VERSION=4.17
+
 mkdir -p $NIX_BOOT_DIR
 cd $NIX_BOOT_DIR
 
-if [ ! -e nix-1.6.1.tar.xz ] ; then
-wget http://nixos.org/releases/nix/nix-1.6.1/nix-1.6.1.tar.xz
+# TODO switch to gz
+if [ ! -e nix-$NIX_VERSION.tar.xz ] ; then
+wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.xz
 fi
-if [ ! -e bzip2-1.0.6.tar.gz ] ; then
-wget http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+if [ ! -e bzip2-${BZ2_VERSION}.tar.gz ] ; then
+wget http://bzip.org/${BZ2_VERSION}/bzip2-${BZ2_VERSION}.tar.gz
 fi
-if [ ! -e curl-7.35.0.tar.lzma ] ; then
-wget http://curl.haxx.se/download/curl-7.35.0.tar.lzma
+if [ ! -e curl-${CURL_VERSION}.tar.lzma ] ; then
+wget http://curl.haxx.se/download/curl-${CURL_VERSION}.tar.lzma
 fi
+# TODO how to set the version here?
 if [ ! -e sqlite-autoconf-3080300.tar.gz ] ; then
 wget http://www.sqlite.org/2014/sqlite-autoconf-3080300.tar.gz
 fi
-if [ ! -e DBI-1.631.tar.gz ] ; then
-# wget http://search.cpan.org/CPAN/authors/id/T/TI/TIMB/DBI-1.631.tar.gz
-wget --no-check-certificate https://pkgs.fedoraproject.org/repo/pkgs/perl-DBI/DBI-1.631.tar.gz/444d3c305e86597e11092b517794a840/DBI-1.631.tar.gz
+if [ ! -e DBI-${DBI_VERSION}.tar.gz ] ; then
+wget -r --no-check-certificate --no-parent -A "DBI-${DBI_VERSION}.tar.gz" "https://pkgs.fedoraproject.org/repo/pkgs/perl-DBI/DBI-${DBI_VERSION}.tar.gz/"
 fi
-if [ ! -e DBD-SQLite-1.40.tar.gz ] ; then
-wget --no-check-certificate https://pkgs.fedoraproject.org/repo/pkgs/perl-DBD-SQLite/DBD-SQLite-1.40.tar.gz/b9876882186499583428b14cf5c0e29c/DBD-SQLite-1.40.tar.gz
+if [ ! -e DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz ] ; then
+wget -r --no-check-certificate --no-parent -A "DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz" "https://pkgs.fedoraproject.org/repo/pkgs/perl-DBD-SQLite/DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz/"
 fi
-if [ ! -e WWW-Curl-4.17.tar.gz ] ; then
-wget --no-check-certificate https://pkgs.fedoraproject.org/repo/pkgs/perl-WWW-Curl/WWW-Curl-4.17.tar.gz/997ac81cd6b03b30b36f7cd930474845/WWW-Curl-4.17.tar.gz
+if [ ! -e WWW-Curl-${WWW_CURL_VERSION}.tar.gz ] ; then
+wget -r --no-check-certificate --no-parent -A "WWW-Curl-${WWW_CURL_VERSION}.tar.gz" "https://pkgs.fedoraproject.org/repo/pkgs/perl-WWW-Curl/WWW-Curl-${WWW_CURL_VERSION}.tar.gz/"
 fi
 
 export PATH=$NIX_BOOT_DIR/bin:$PATH
@@ -39,7 +47,7 @@ export PERL5OPT="-I$NIX_BOOT_DIR/lib/perl -I$NIX_BOOT_DIR/lib64/perl5 -I$NIX_BOO
 
 if [ ! -e $NIX_BOOT_DIR/lib/libbz2.so.1.0.6 ]; then
   cd $NIX_BOOT_DIR
-  tar xvzf bzip2-1.0.6.tar.gz
+  tar xvzf bzip2-${BZ2_VERSION}.tar.gz
   cd bzip2*
   make -f Makefile-libbz2_so
   make install PREFIX=$HOME/nix-boot
@@ -113,4 +121,3 @@ echo 'export LDFLAGS="-L$HOME/nix-boot/lib $LDFLAGS"'
 echo 'export CPPFLAGS="-I$HOME/nix-boot/include $CPPFLAGS"'
 echo 'export PERL5OPT="-I$HOME/nix-boot/lib/perl -I$HOME/nix-boot/lib64/perl5 -I$HOME/nix-boot/lib/perl5 -I$HOME/nix-boot/lib/perl5/site_perl"'
 echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
-
