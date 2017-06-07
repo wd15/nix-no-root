@@ -1,0 +1,26 @@
+checking for LIBLZMA... no
+configure: error: Package requirements (liblzma) were not met:
+
+No package 'liblzma' found
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables LIBLZMA_CFLAGS
+and LIBLZMA_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+  GEN    Makefile.config
+/bin/sh: ./config.status: No such file or directory
+  CXX    src/nix-hash/nix-hash.o
+In file included from src/libutil/hash.hh:3:0,
+                 from src/nix-hash/nix-hash.cc:1:
+src/libutil/types.hh:3:20: fatal error: config.h: No such file or directory
+ #include "config.h"
+                    ^
+compilation terminated.
+make: *** [src/nix-hash/nix-hash.o] Error 1
+  GEN    Makefile.config
+/bin/sh: ./config.status: No such file or directory
+  GEN    config.h
+/bin/sh: ./config.status: No such file or directory
+make: *** [config.h] Error 127

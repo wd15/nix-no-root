@@ -20,7 +20,9 @@ export PATH=$NIX_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$NIX_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 export LDFLAGS="-L$NIX_DIR/lib $LDFLAGS"
 export CPPFLAGS="-I$NIX_DIR/include $CPPFLAGS"
-export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib64/perl5 -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
+# TODO is this still right?
+# export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib64/perl5 -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
+export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib/perl5/x86_64-linux-thread-multi -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
 
 mkdir -p $NIX_DIR
 
@@ -62,7 +64,7 @@ build_dbi() {
   if [ ! -e $NIX_DIR/bin/dbiproxy ] ; then
     tar xvzf DBI-*.tar.gz 
     cd DBI-*
-    perl Makefile.PL PREFIX=$NIX_DIR
+    perl Makefile.PL INSTALL_BASE=$NIX_DIR
     make
     make install
   fi
@@ -73,10 +75,13 @@ build_dbdsqlite() {
   if [ ! -e DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz ] ; then
     wget --no-check-certificate "${FEDORA_PKGS}/perl-DBD-SQLite/DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz/${DBD_SQLITE_HASH}/DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz"
   fi
-  if [ ! -e $NIX_DIR/lib64/perl5/DBD/SQLite.pm ]; then
+  # TODO is this path still right?
+  # ~/nix-boot/lib/perl5/x86_64-linux-thread-multi/DBI
+  # if [ ! -e $NIX_DIR/lib64/perl5/DBD/SQLite.pm ]; then
+  if [ ! -e $NIX_DIR/lib/perl5/x86_64-linux-thread-multi/DBD/SQLite.pm ]; then
     tar xvzf DBD-SQLite-*.gz
     cd DBD-*
-    perl Makefile.PL PREFIX=$NIX_DIR
+    perl Makefile.PL INSTALL_BASE=$NIX_DIR
     make
     make install
   fi
@@ -87,10 +92,11 @@ build_wwwcurl() {
   if [ ! -e WWW-Curl-${WWW_CURL_VERSION}.tar.gz ] ; then
     wget --no-check-certificate "${FEDORA_PKGS}/perl-WWW-Curl/WWW-Curl-${WWW_CURL_VERSION}.tar.gz/${WWW_CURL_HASH}/WWW-Curl-${WWW_CURL_VERSION}.tar.gz"
   fi
-  if [ ! -e $NIX_DIR/lib64/perl5/WWW/Curl.pm ]; then
+  # TODO is this path still right?
+  if [ ! -e $NIX_DIR/lib/perl5/x86_64-linux-thread-multi/WWW/Curl.pm ]; then
     tar xvzf WWW-Curl-*.gz
     cd WWW-*
-    perl Makefile.PL PREFIX=$NIX_DIR
+    perl Makefile.PL INSTALL_BASE=$NIX_DIR
     make
     make install
   fi
@@ -113,7 +119,7 @@ build_bzip2() {
 
 build_nix() {
   cd $NIX_DIR
-  if [ ! -e nix-$NIX_VERSION.tar.bz2 ] ; then
+  if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
     wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
   fi
   if [ ! -e $NIX_DIR/bin/nix-env ] ; then
@@ -139,16 +145,16 @@ build_nix() {
 # echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
 
 main() {
-  # works:
-  build_bzip2 && build_sqlite3 && build_curl
+  # set -E
+  build_bzip2
+  build_sqlite3
+  build_curl
+  build_dbi
+  build_dbdsqlite
+  build_wwwcurl
 
-  # TODO fix "Only one of PREFIX or INSTALL_BASE can be given.  Not both."
-  # build_dbi
-  # build_dbdsqlite
-  # build_wwwcurl
-
-  # can't try without the others:
-  # fetch_nix       && build_nix
+  # TODO fix "no package liblzma found"... by downloading it? or sending a support email?
+  # build_nix
 }
 
 main
