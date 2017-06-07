@@ -1,26 +1,15 @@
-checking for LIBLZMA... no
-configure: error: Package requirements (liblzma) were not met:
-
-No package 'liblzma' found
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables LIBLZMA_CFLAGS
-and LIBLZMA_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-  GEN    Makefile.config
-/bin/sh: ./config.status: No such file or directory
-  CXX    src/nix-hash/nix-hash.o
-In file included from src/libutil/hash.hh:3:0,
-                 from src/nix-hash/nix-hash.cc:1:
-src/libutil/types.hh:3:20: fatal error: config.h: No such file or directory
- #include "config.h"
-                    ^
-compilation terminated.
-make: *** [src/nix-hash/nix-hash.o] Error 1
-  GEN    Makefile.config
-/bin/sh: ./config.status: No such file or directory
-  GEN    config.h
-/bin/sh: ./config.status: No such file or directory
-make: *** [config.h] Error 127
+...
+  INST   /global/home/users/jefdaj/nix-boot/share/doc/nix/manual/index.html
+  CXX    perl/lib/Nix/Store.o
+  LD     /global/home/users/jefdaj/nix-boot/lib/libnixformat.so
+  LD     /global/home/users/jefdaj/nix-boot/lib/libnixutil.so
+  LD     /global/home/users/jefdaj/nix-boot/lib/libnixstore.so
+  MKDIR  /global/home/users/jefdaj/nix-boot/lib/perl5/site_perl/5.10.1/x86_64-linux-thread-multi/auto/Nix/Store
+  LD     /global/home/users/jefdaj/nix-boot/lib/perl5/site_perl/5.10.1/x86_64-linux-thread-multi/auto/Nix/Store/Store.so
+  LD     /global/home/users/jefdaj/nix-boot/lib/libnixmain.so
+  LD     /global/home/users/jefdaj/nix-boot/bin/nix-hash
+/usr/bin/ld: /global/home/users/jefdaj/nix-boot/bin/nix-hash: undefined reference to symbol '__pthread_key_create@@GLIBC_2.2.5'
+/usr/bin/ld: note: '__pthread_key_create@@GLIBC_2.2.5' is defined in DSO /lib64/libpthread.so.0 so try adding it to the linker command line
+/lib64/libpthread.so.0: could not read symbols: Invalid operation
+collect2: error: ld returned 1 exit status
+make: *** [/global/home/users/jefdaj/nix-boot/bin/nix-hash] Error 1
