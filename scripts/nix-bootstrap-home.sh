@@ -11,6 +11,8 @@ CURL_VERSION=7.35.0
 DBI_VERSION=1.631
 DBD_SQLITE_VERSION=1.40
 WWW_CURL_VERSION=4.17
+SQLITE_YEAR=2014
+SQLITE_VERSION=3080300
 
 mkdir -p $NIX_BOOT_DIR
 cd $NIX_BOOT_DIR
@@ -26,8 +28,8 @@ if [ ! -e curl-${CURL_VERSION}.tar.lzma ] ; then
 wget http://curl.haxx.se/download/curl-${CURL_VERSION}.tar.lzma
 fi
 # TODO how to set the version here?
-if [ ! -e sqlite-autoconf-3080300.tar.gz ] ; then
-wget http://www.sqlite.org/2014/sqlite-autoconf-3080300.tar.gz
+if [ ! -e sqlite-autoconf-${SQLITE_VERSION}.tar.gz ] ; then
+wget http://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
 fi
 if [ ! -e DBI-${DBI_VERSION}.tar.gz ] ; then
 wget -r --no-check-certificate --no-parent -A "DBI-${DBI_VERSION}.tar.gz" "https://pkgs.fedoraproject.org/repo/pkgs/perl-DBI/DBI-${DBI_VERSION}.tar.gz/"
