@@ -1,0 +1,8 @@
+--- /global/home/users/jefdaj/nix-boot/nix-1.11.9/src/nix-collect-garbage/local.mk	1969-12-31 16:00:01.000000000 -0800
++++ nix-collect-garbage-local.mk	2017-06-10 17:49:52.850432000 -0700
+@@ -5,3 +5,5 @@
+ nix-collect-garbage_SOURCES := $(d)/nix-collect-garbage.cc
+ 
+ nix-collect-garbage_LIBS = libmain libstore libutil libformat
++
++nix-collect-garbage_LDFLAGS = -pthread

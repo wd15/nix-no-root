@@ -20,9 +20,28 @@ NIX_VERSION=1.11.9
 export PATH=$NIX_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$NIX_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 
-export  LDFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $LDFLAGS"
-export CPPFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $CPPFLAGS"
-export CXXFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -lpthread $CXXFLAGS"
+# TODO fix /usr/bin/ld: cannot find -llzma
+#
+# TODO fix /usr/bin/ld: /global/home/users/jefdaj/nix-boot/bin/nix-hash: undefined reference to symbol '__pthread_key_create@@GLIBC_2.2.5'
+#          /usr/bin/ld: note: '__pthread_key_create@@GLIBC_2.2.5' is defined in DSO /lib64/libpthread.so.0 so try adding it to the linker command line
+#          /lib64/libpthread.so.0: could not read symbols: Invalid operation"
+#
+# things tried:
+#   x -pthread at end
+#   x -lpthread at end
+#   x both together,
+#   x removing CPPFLAGS
+#   x removing CXXFLAGS (CPPFLAGS should be passed on?)
+#   x removing -pthread -lpthread from all but LDFLAGS
+#   x running bootstrap.sh in the nix source dir
+#   removing flags altogether to see if they're being used at all... seems not?
+#   adding flags to ./configure directly
+#   adding lib and lib64 to PERL5OPT
+#   only using -pthread and/or -lpthread in one set of flags at once
+#
+# export  LDFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -L/lib64 -L/lib -pthread -lpthread"
+# export CPPFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -L/lib64 -L/lib -pthread -lpthread"
+# export CXXFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -L/global/software/sl-6.x86_64/modules/langs/gcc/4.8.5/lib64 -L/global/software/sl-6.x86_64/modules/langs/gcc/4.8.5/lib"
 
 # TODO is this right?
 # export PERL5OPT="-I$NIX_DIR/lib/perl -I$NIX_DIR/lib64/perl5 -I$NIX_DIR/lib/perl5 -I$NIX_DIR/lib/perl5/site_perl"
@@ -138,18 +157,34 @@ build_xz() {
 
 build_nix() {
   cd $NIX_DIR
-  if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
-    wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
-  fi
-  if [ ! -e $NIX_DIR/bin/nix-env ] ; then
-    bzip2 -d nix-*bz2
+  # if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
+  #   wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
+  # fi
+  # if [ ! -e $NIX_DIR/bin/nix-env ] ; then
+    # bzip2 -d nix-*bz2
     tar xvf nix-*.tar
     cd nix-*
     # TODO should these be set separately since they'll persist after bootstrapping?
-    ./configure --prefix=$NIX_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var
+    # export  LDFLAGS="-I$NIX_DIR/include -L$NIX_DIR/lib -L/lib64 -L/lib -pthread -lpthread"
+    # patch configure.ac /global/home/users/jefdaj/nix-no-root/configure.patch
+    # patch src/nix-hash/local.mk /global/home/users/jefdaj/nix-no-root/nix-hash-local.mk.patch
+    # patch src/nix-*/local.mk /global/home/users/jefdaj/nix-no-root/nix-local.mk.patch
+
+    # TODO get liblzma working:
+    # TODO patch Makefile.config.in               /global/home/users/jefdaj/nix-no-root/Makefile.config.in.patch
+
+    # TODO put these in one big "-pthread" patch:
+    patch src/nix-hash/local.mk            /global/home/users/jefdaj/nix-no-root/nix-hash-local.mk.patch
+    patch src/nix-instantiate/local.mk     /global/home/users/jefdaj/nix-no-root/nix-instantiate-local.mk.patch
+    patch src/nix-env/local.mk             /global/home/users/jefdaj/nix-no-root/nix-env-local.mk.patch
+    patch src/nix-collect-garbage/local.mk /global/home/users/jefdaj/nix-no-root/nix-collect-garbage-local.mk.patch
+    patch src/libutil/local.mk             /global/home/users/jefdaj/nix-no-root/nix-libutil-local.mk.patch
+
+    ./configure --prefix=$NIX_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var CXXFLAGS="$CXXFLAGS" GLOBAL_LDFLAGS=-pthread
     make
+    # make install exec_prefix=$NIX_DIR
     make install
-  fi
+  # fi
 }
 
 # $NIX_DIR/bin/nix-env --version
@@ -165,13 +200,13 @@ build_nix() {
 
 main() {
   # set -E
-  build_bzip2
-  build_sqlite3
-  build_curl
-  build_dbi
-  build_dbdsqlite
-  build_wwwcurl
-  build_xz
+  # build_bzip2
+  # build_sqlite3
+  # build_curl
+  # build_dbi
+  # build_dbdsqlite
+  # build_wwwcurl
+  # build_xz
   build_nix
 }
 

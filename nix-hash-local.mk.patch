@@ -1,0 +1,8 @@
+--- /global/home/users/jefdaj/nix-boot/nix-1.11.9/src/nix-hash/local.mk	1969-12-31 16:00:01.000000000 -0800
++++ nix-hash-local.mk	2017-06-10 17:38:28.874889000 -0700
+@@ -5,3 +5,5 @@
+ nix-hash_SOURCES := $(d)/nix-hash.cc
+ 
+ nix-hash_LIBS = libmain libstore libutil libformat
++
++nix-hash_LDFLAGS = -pthread

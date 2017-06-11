@@ -1,0 +1,11 @@
+--- /global/home/users/jefdaj/nix-boot/nix-1.11.9/local.mk	2017-06-10 17:30:28.969235000 -0700
++++ nix-local.mk	2017-06-10 17:30:49.965729000 -0700
+@@ -7,7 +7,7 @@
+ 
+ clean-files += Makefile.config
+ 
+-GLOBAL_CXXFLAGS += -I . -I src -I src/libutil -I src/libstore -I src/libmain -I src/libexpr \
++GLOBAL_CXXFLAGS += -I . -I src -I src/libutil -I src/libstore -I src/libmain -I src/libexpr -L /lib -L /lib64 \
+   -Wno-unneeded-internal-declaration
+ 
+ $(foreach i, config.h $(call rwildcard, src/lib*, *.hh) src/nix-store/serve-protocol.hh, \
