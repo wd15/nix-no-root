@@ -179,8 +179,19 @@ build_nix() {
     patch src/nix-env/local.mk             /global/home/users/jefdaj/nix-no-root/nix-env-local.mk.patch
     patch src/nix-collect-garbage/local.mk /global/home/users/jefdaj/nix-no-root/nix-collect-garbage-local.mk.patch
     patch src/libutil/local.mk             /global/home/users/jefdaj/nix-no-root/nix-libutil-local.mk.patch
+    patch src/download-via-ssh/local.mk    /global/home/users/jefdaj/nix-no-root/nix-download-via-ssh-local.mk.patch
+    patch local.mk                         /global/home/users/jefdaj/nix-no-root/nix-local.mk.patch
 
-    ./configure --prefix=$NIX_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var CXXFLAGS="$CXXFLAGS" GLOBAL_LDFLAGS=-pthread
+    # from https://github.com/NixOS/nix/issues/566
+    # export LD_LIBRARY_PATH="$NIX_DIR/lib:$LD_LIBRARY_PATH"
+
+    ./configure --prefix=$NIX_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var # CXXFLAGS="$CXXFLAGS" GLOBAL_LDFLAGS=-pthread
+
+    # from https://github.com/NixOS/nix/issues/566
+    # sed -ri 's@^GLOBAL_CXXFLAGS \+= .*all$@& '"$CXXFLAGS"'@' Makefile
+    # echo "GLOBAL_CFLAGS += $CFLAGS" >> Makefile
+    # echo "GLOBAL_LDFLAGS += $LDFLAGS" >> Makefile
+
     make
     # make install exec_prefix=$NIX_DIR
     make install

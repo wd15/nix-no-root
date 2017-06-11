@@ -1,0 +1,8 @@
+--- /global/home/users/jefdaj/nix-boot/nix-1.11.9/src/download-via-ssh/local.mk	1969-12-31 16:00:01.000000000 -0800
++++ nix-download-via-ssh-local.mk	2017-06-10 21:27:35.781222000 -0700
+@@ -9,3 +9,5 @@
+ download-via-ssh_CXXFLAGS = -Isrc/nix-store
+ 
+ download-via-ssh_LIBS = libmain libstore libutil libformat
++
++download-via-ssh_LDLIBS = -pthread
