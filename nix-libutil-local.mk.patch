@@ -5,6 +5,6 @@
  libutil_SOURCES := $(wildcard $(d)/*.cc)
  
 -libutil_LDFLAGS = -llzma $(OPENSSL_LIBS)
-+libutil_LDFLAGS = -llzma -pthread $(OPENSSL_LIBS)
++libutil_LDFLAGS = -pthread -llzma $(OPENSSL_LIBS)
  
  libutil_LIBS = libformat
