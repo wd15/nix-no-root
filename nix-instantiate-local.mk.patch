@@ -1,8 +1,0 @@
---- /global/home/users/jefdaj/nix-boot/nix-1.11.9/src/nix-instantiate/local.mk	1969-12-31 16:00:01.000000000 -0800
-+++ nix-instantiate-local.mk	2017-06-10 17:42:56.426173000 -0700
-@@ -5,3 +5,5 @@
- nix-instantiate_SOURCES := $(d)/nix-instantiate.cc
- 
- nix-instantiate_LIBS = libexpr libmain libstore libutil libformat
-+
-+nix-instantiate_LDFLAGS = -pthread
