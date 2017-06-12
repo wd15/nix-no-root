@@ -3,9 +3,10 @@
 # This script creates a working nix in $BOOT_DIR, as described on
 # https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29
 
-# TODO take these two as arguments
-BOOT_DIR=$HOME/nix-boot
-NIX_DIR=/clusterfs/rosalind/users/jefdaj/nix
+usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir"
+[[ $# == 2 ]] || (echo "$usage"; exit 1)
+BOOT_DIR="$1"
+NIX_DIR="$2"
 
 FEDORA_PKGS='https://pkgs.fedoraproject.org/repo/pkgs'
 BZ2_VERSION=1.0.6
@@ -139,6 +140,13 @@ build_nix() {
     wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
   fi
   if [ ! -e $BOOT_DIR/bin/nix-env ] ; then
+    build_bzip2
+    build_sqlite3
+    build_curl
+    build_dbi
+    build_dbdsqlite
+    build_wwwcurl
+    build_xz
     bzip2 -d nix-*bz2
     tar xvf nix-*.tar
     cd nix-*
@@ -151,25 +159,17 @@ build_nix() {
   fi
 }
 
-# echo "Success. To proceed you may want to set"
-# echo 'export PATH=$BOOT_DIR/bin:$PATH'
-# echo 'export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH'
-# echo 'export LDFLAGS="-L$BOOT_DIR/lib $LDFLAGS"'
-# echo 'export CPPFLAGS="-I$BOOT_DIR/include $CPPFLAGS"'
-# echo 'export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib64/perl5 -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"'
-# echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
-
 main() {
   # set -E
-  build_bzip2
-  build_sqlite3
-  build_curl
-  build_dbi
-  build_dbdsqlite
-  build_wwwcurl
-  build_xz
   build_nix
   $BOOT_DIR/bin/nix-env -i nix
+  # echo "Success. To proceed you may want to set"
+  # echo 'export PATH=$BOOT_DIR/bin:$PATH'
+  # echo 'export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH'
+  # echo 'export LDFLAGS="-L$BOOT_DIR/lib $LDFLAGS"'
+  # echo 'export CPPFLAGS="-I$BOOT_DIR/include $CPPFLAGS"'
+  # echo 'export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib64/perl5 -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"'
+  # echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
 }
 
 main
