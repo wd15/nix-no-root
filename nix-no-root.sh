@@ -3,10 +3,10 @@
 # This script creates a working nix in $BOOT_DIR, as described on
 # https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29
 
-usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir"
-[[ $# == 2 ]] || (echo "$usage"; exit 1)
-BOOT_DIR="$1"
-NIX_DIR="$2"
+usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir [...]"
+[[ $# -lt 2 ]] || (echo "$usage"; exit 1)
+BOOT_DIR="$1"; shift
+NIX_DIR="$1" ; shift
 
 FEDORA_PKGS='https://pkgs.fedoraproject.org/repo/pkgs'
 BZ2_VERSION=1.0.6
@@ -135,18 +135,18 @@ build_xz() {
 }
 
 build_nix() {
+  build_bzip2
+  build_sqlite3
+  build_curl
+  build_dbi
+  build_dbdsqlite
+  build_wwwcurl
+  build_xz
   cd $BOOT_DIR
   if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
     wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
   fi
   if [ ! -e $BOOT_DIR/bin/nix-env ] ; then
-    build_bzip2
-    build_sqlite3
-    build_curl
-    build_dbi
-    build_dbdsqlite
-    build_wwwcurl
-    build_xz
     bzip2 -d nix-*bz2
     tar xvf nix-*.tar
     cd nix-*
@@ -162,7 +162,7 @@ build_nix() {
 main() {
   # set -E
   build_nix
-  $BOOT_DIR/bin/nix-env -i nix
+  $BOOT_DIR/bin/nix-env -i nix $@
   # echo "Success. To proceed you may want to set"
   # echo 'export PATH=$BOOT_DIR/bin:$PATH'
   # echo 'export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH'
@@ -172,4 +172,4 @@ main() {
   # echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
 }
 
-main
+main $@

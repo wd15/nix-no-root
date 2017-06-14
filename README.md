@@ -6,6 +6,7 @@ get the latest Nix to build. It takes two arguments: a temporary directory for
 compiling the first time, and the directory where everything should go once it
 works. For example, this is what I used:
 
+    module load gcc/4.8.5
     nix-no-root.sh /global/home/users/jefdaj/nix-boot /clusterfs/rosalind/users/jefdaj/nix
 
 If the system has gcc, Perl and a few other build tools it may be possible to
