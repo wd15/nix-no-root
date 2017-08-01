@@ -1,10 +1,13 @@
 #! /bin/sh
-#
-# This script creates a working nix in $BOOT_DIR, as described on
-# https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29
+ 
+# This script compiles a temporary Nix in $BOOT_DIR using standard Unix tools,
+# then uses that to install a "proper" version in $NIX_DIR. The first two
+# arguments are bootstrap dir and final nix dir; any others are passed to
+# nix-env in the second step. It works as of July 2017 (Nix 1.11.9), but if
+# that was a long time ago you may need to update package versions below.
 
-usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir [...]"
-[[ $# -lt 2 ]] || (echo "$usage"; exit 1)
+usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir [nix-env args]"
+[[ $# -ge 2 ]] || (echo "$usage"; exit 1)
 BOOT_DIR="$1"; shift
 NIX_DIR="$1" ; shift
 
@@ -20,6 +23,7 @@ NIX_VERSION=1.11.9
 
 export PATH=$BOOT_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+export TMPDIR=$NIX_DIR/tmp
 
 # these didn't work for me, maybe because of centos? had to patch nix src files instead
 # export  LDFLAGS="-I$BOOT_DIR/include -L$BOOT_DIR/lib -L/lib64 -L/lib -pthread -lpthread"
@@ -27,6 +31,7 @@ export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib/perl5/x86_64-linux-thread-multi -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"
 
 mkdir -p $BOOT_DIR
+mkdir -p $TMPDIR
 
 build_curl() {
   cd $BOOT_DIR
@@ -159,17 +164,17 @@ build_nix() {
   fi
 }
 
-main() {
-  # set -E
-  build_nix
+nix_build_nix() {
+  export PATH=$BOOT_DIR/bin:$PATH
+  export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+  export LDFLAGS="-L$BOOT_DIR/lib $LDFLAGS"
+  export CPPFLAGS="-I$BOOT_DIR/include $CPPFLAGS"
+  export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib64/perl5 -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"
   $BOOT_DIR/bin/nix-env -i nix $@
-  # echo "Success. To proceed you may want to set"
-  # echo 'export PATH=$BOOT_DIR/bin:$PATH'
-  # echo 'export PKG_CONFIG_PATH=$BOOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH'
-  # echo 'export LDFLAGS="-L$BOOT_DIR/lib $LDFLAGS"'
-  # echo 'export CPPFLAGS="-I$BOOT_DIR/include $CPPFLAGS"'
-  # echo 'export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib64/perl5 -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"'
-  # echo '  and follow https://nixos.org/wiki/How_to_install_nix_in_home_%28on_another_distribution%29'
+}
+
+main() {
+  build_nix && nix_build_nix $@
 }
 
 main $@
