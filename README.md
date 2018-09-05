@@ -4,10 +4,26 @@ nix-no-root
 My fork of [pjotrp/nix-no-root][1], which diverged considerably as I tried to
 get the latest Nix to build. It takes two arguments: a temporary directory for
 compiling the first time, and the directory where everything should go once it
-works. For example, this is what I used:
+works. Other args are passed to the final `nix-env` command. For example, this
+is what I used:
 
-    module load gcc/4.8.5
-    nix-no-root.sh /global/home/users/jefdaj/nix-boot /clusterfs/rosalind/users/jefdaj/nix
+    module load gcc/6.3.0
+    module load boost/1.66.0
+    ./nix-no-root.sh \
+      /clusterfs/rosalind/users/jefdaj/nix-boot /clusterfs/rosalind/users/jefdaj/nix2 \
+      -j$(nproc) --keep-going --show-trace 2>&1 | tee nix-no-root.log
+
+So far, some version of the script has worked on the following systems.
+Please add yours here, or message me and I will!
+
+nix version operating system              uname -a
+----------- ----------------              --------
+1.6.1       CentOS 6                      Linux version 2.6.32-431.17.1.el6.x86_64 (mockbuild@c6b8.bsys.dev.centos.org) (gcc version 4.4.7 20120313 (Red Hat 4.4.7-4) (GCC) ) #1 SMP Wed May 7 23:32:49 UTC 2014
+1.11.9      Scientific Linux 6.9 (Carbon) Linux ln002.brc 2.6.32-642.15.1.el6.x86_64 #1 SMP Thu Feb 23 11:19:57 CST 2017 x86_64 x86_64 x86_64 GNU/Linux
+2.0.4       ???                           Linux ln003.brc 3.10.0-693.11.6.el7.x86_64 #1 SMP Wed Jan 3 18:09:42 CST 2018 x86_64 x86_64 x86_64 GNU/Linux
+
+Rest of the upstream README follows...
+
 
 If the system has gcc, Perl and a few other build tools it may be possible to
 bootstrap on the target system using nix-no-root.sh. Alternatively, provided
@@ -21,14 +37,6 @@ So far, this is the most successful bootstrap route I tried for Nix,
 and I have tried quite a few ways over time. For Guix the upside is
 that if Nix works you can simply install Guix from a Nix package.
 Very easy. 
-
-So far, some version of the script has worked on the following systems.
-Please add yours here, or message me and I will!
-
-nix version operating system              uname -a
------------ ----------------              --------
-1.6.1       CentOS 6                      Linux version 2.6.32-431.17.1.el6.x86_64 (mockbuild@c6b8.bsys.dev.centos.org) (gcc version 4.4.7 20120313 (Red Hat 4.4.7-4) (GCC) ) #1 SMP Wed May 7 23:32:49 UTC 2014
-1.11.9      Scientific Linux 6.9 (Carbon) Linux ln002.brc 2.6.32-642.15.1.el6.x86_64 #1 SMP Thu Feb 23 11:19:57 CST 2017 x86_64 x86_64 x86_64 GNU/Linux
 
 # NixPkgs
 
