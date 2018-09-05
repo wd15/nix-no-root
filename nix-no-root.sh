@@ -1,16 +1,5 @@
 #! /bin/sh
 
-# This script compiles a temporary Nix in $BOOTSTRAP_DIR using standard Unix tools,
-# then uses that to install a "proper" version in $NIX_DIR. The first two
-# arguments are bootstrap dir and final nix dir; any others are passed to
-# nix-env in the second step. It works as of September 2018 (Nix 2.0.4).
-
-# Before you start, make sure your PATH doesn't reference existing nix binaries.
-# NIX_PATH should include `nixpkgs=/path/to/your/clone/of/nixpkgs` if applicable though.
-# Finally, you'll need gcc and libboost. On the Berkeley cluster they're loaded like this:
-# module load gcc/6.3.0
-# module load boost/1.66.0
-
 usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir [nix-env args]"
 [[ $# -ge 2 ]] || (echo "$usage"; exit 1)
 BOOTSTRAP_DIR="$1"; shift
