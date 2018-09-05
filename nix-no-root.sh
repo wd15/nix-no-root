@@ -30,8 +30,8 @@ export TMPDIR=$NIX_DIR/tmp
 # export CPPFLAGS="-I$BOOT_DIR/include -L$BOOT_DIR/lib -L/lib64 -L/lib -pthread -lpthread"
 export PERL5OPT="-I$BOOT_DIR/lib/perl -I$BOOT_DIR/lib/perl5/x86_64-linux-thread-multi -I$BOOT_DIR/lib/perl5 -I$BOOT_DIR/lib/perl5/site_perl"
 
-mkdir -p $BOOT_DIR
-mkdir -p $TMPDIR
+mkdir -p $BOOT_DIR || (echo "failed to create $BOOT_DIR" && exit 1)
+mkdir -p $TMPDIR   || (echo "failed to create $TMPDIR"   && exit 1)
 
 build_curl() {
   cd $BOOT_DIR
@@ -48,7 +48,6 @@ build_curl() {
   fi
 }
 
-# TODO how to set the version here?
 build_sqlite3() {
   cd $BOOT_DIR
   if [ ! -e sqlite-autoconf-${SQLITE_VERSION}.tar.gz ] ; then
@@ -82,9 +81,6 @@ build_dbdsqlite() {
   if [ ! -e DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz ] ; then
     wget --no-check-certificate "${FEDORA_PKGS}/perl-DBD-SQLite/DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz/${DBD_SQLITE_HASH}/DBD-SQLite-${DBD_SQLITE_VERSION}.tar.gz"
   fi
-  # TODO is this path still right?
-  # ~/nix-boot/lib/perl5/x86_64-linux-thread-multi/DBI
-  # if [ ! -e $BOOT_DIR/lib64/perl5/DBD/SQLite.pm ]; then
   if [ ! -e $BOOT_DIR/lib/perl5/x86_64-linux-thread-multi/DBD/SQLite.pm ]; then
     tar xvzf DBD-SQLite-*.gz
     cd DBD-*
@@ -99,7 +95,6 @@ build_wwwcurl() {
   if [ ! -e WWW-Curl-${WWW_CURL_VERSION}.tar.gz ] ; then
     wget --no-check-certificate "${FEDORA_PKGS}/perl-WWW-Curl/WWW-Curl-${WWW_CURL_VERSION}.tar.gz/${WWW_CURL_HASH}/WWW-Curl-${WWW_CURL_VERSION}.tar.gz"
   fi
-  # TODO is this path still right?
   if [ ! -e $BOOT_DIR/lib/perl5/x86_64-linux-thread-multi/WWW/Curl.pm ]; then
     tar xvzf WWW-Curl-*.gz
     cd WWW-*
@@ -119,7 +114,6 @@ build_bzip2() {
     cd bzip2*
     make -f Makefile-libbz2_so
     make install PREFIX=$BOOT_DIR
-    # TODO what to do about the 1.0?
     cp libbz2.so.1.0 libbz2.so.${BZ2_VERSION} $BOOT_DIR/lib
   fi
 }
@@ -148,15 +142,14 @@ build_nix() {
   build_wwwcurl
   build_xz
   cd $BOOT_DIR
-  if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
-    wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
-  fi
   if [ ! -e $BOOT_DIR/bin/nix-env ] ; then
+    if [ ! -e nix-${NIX_VERSION}.tar.bz2 ] ; then
+      wget http://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}.tar.bz2
+    fi
     bzip2 -d nix-*bz2
     tar xvf nix-*.tar
     cd nix-*
-    # TODO get liblzma working in libnixutil
-    # TODO avoid full path here (maybe just use sed?)
+    # TODO avoid full path here, maybe using the script path
     patch local.mk /global/home/users/jefdaj/nix-no-root/nix-local.mk.patch
     ./configure --prefix=$BOOT_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var
     make
@@ -174,6 +167,7 @@ nix_build_nix() {
 }
 
 main() {
+  cd $BOOT_DIR
   build_nix && nix_build_nix $@
 }
 
