@@ -19,7 +19,9 @@ Finally, run the script. It takes two arguments: a temporary directory for
 compiling the bootstrap version, and the final nix directory where everything
 will eventually go. The final directory must be the same as in your
 `config.nix`. Other args are passed to the last `nix-env` command. You probably
-want add `-j` to use all processors. This was my full invocation:
+want to add `-j` to use all processors. If you have existing Nix binaries, make
+sure to remove them from your `PATH` to prevent errors. This was my full
+invocation:
 
     # provided by the Berkeley cluster environment
     # you may need to find your equivalents
@@ -30,11 +32,20 @@ want add `-j` to use all processors. This was my full invocation:
       /clusterfs/rosalind/users/jefdaj/nix-boot /clusterfs/rosalind/users/jefdaj/nix2 \
       -j$(nproc) --keep-going --show-trace 2>&1 | tee nix-no-root.log
 
-Before you start, make sure your `PATH` doesn't reference existing nix binaries.
-`NIX_PATH` should include your nixpkgs if applicable though.
+That will take a long time to run. Afterward, the last step is to symlink
+`~/.nix-profile` to `var/nix/profiles/default` in your nix dir, and add
+something like this to your `.bashrc`:
 
-So far, some version of the script has worked on the following systems.
-Please add yours here, or message me and I will!
+    module load gcc/6.3.0
+    module load boost/1.66.0
+    export NIX_PATH=nixpkgs=$HOME/nixpkgs
+    source $HOME/.nix-profile/etc/profile.d/nix.sh
+    # This works around a Nix bug. Does it break anything?
+    unset LIBRARY_PATH
+    unset LD_LIBRARY_PATH
+
+Congratulations. You made it!
+Please add your version info here, or message me and I will!
 
 | nix version | operating system     | uname -a |
 | ----------- | -------------------- | -------- |
