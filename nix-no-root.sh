@@ -12,9 +12,10 @@ LIBSECCOMP_VERSION=2.3.3
 
 export PATH=$BOOTSTRAP_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$BOOTSTRAP_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+export LDFLAGS="-L$BOOTSTRAP_DIR/lib $LDFLAGS"
+# export LDFLAGS="-L$BOOTSTRAP_DIR/lib $LDFLAGS -static"
 export TMPDIR=$NIX_DIR/tmp
 export LD_LIBRARY_PATH=$BOOTSTRAP_DIR/lib:$LD_LIBRARY_PATH
-# export LDFLAGS="-L$BOOTSTRAP_DIR/lib $LDFLAGS -static"
 
 mkdir -p $BOOTSTRAP_DIR || (echo "failed to create $BOOTSTRAP_DIR" && exit 1)
 mkdir -p $TMPDIR   || (echo "failed to create $TMPDIR"   && exit 1)
@@ -47,6 +48,10 @@ build_libseccomp() {
   export PKG_CONFIG_PATH=$BOOTSTRAP_DIR/libseccomp-${LIBSECCOMP_VERSION}:$PKG_CONFIG_PATH
 }
 
+# build_glibc() {
+#   
+# }
+
 build_nix() {
   build_libbrotli
   build_libseccomp
@@ -63,7 +68,7 @@ build_nix() {
     # TODO find from script path
     patch src/libstore/local-store.cc /global/home/users/jefdaj/nix-no-root/local-store.patch
     ./configure --prefix=$BOOTSTRAP_DIR --with-store-dir=$NIX_DIR/store --localstatedir=$NIX_DIR/var
-    LDFLAGS=-static make
+    # LDFLAGS=-static make
     make install
   fi
 }
