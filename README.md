@@ -28,9 +28,7 @@ invocation:
     module load gcc/6.3.0
     module load boost/1.66.0
 
-    /working/wd15/git/nix-no-root/nix-no-root.sh \
-      /working/wd15/nix-boot /working/wd15/nix \
-      -j 8 --keep-going --show-trace 2>&1 | tee nix-no-root.log
+    nohup /working/wd15/git/nix-no-root/nix-no-root.sh /working/wd15/nix-boot /working/wd15/nix -j 8 --keep-going --show-trace 2>&1 | tee nix-no-root.log &
 
 That will take a long time to run. Afterward, the last step is to symlink
 `~/.nix-profile` to `var/nix/profiles/default` in your nix dir, and add
