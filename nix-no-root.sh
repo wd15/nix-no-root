@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 usage="Usage: nix-no-root.sh /path/to/bootstrap/dir /path/to/final/nix/dir [nix-env args]"
 [[ $# -ge 2 ]] || (echo "$usage"; exit 1)
@@ -7,13 +7,18 @@ NIX_DIR="$1" ; shift
 
 # as of today, 2.1 carries a bug that messes up fixed-derivation paths:
 # https://github.com/NixOS/nix/issues/2393
-NIX_VERSION=2.0.4
-LIBSECCOMP_VERSION=2.3.3
+NIX_VERSION=2.2.2
+LIBSECCOMP_VERSION=2.5.1
 
+export NIX_USER_CONF_FILES=/users/wd15/.config/nix/nix.conf
 export PATH=$BOOTSTRAP_DIR/bin:$PATH
 export PKG_CONFIG_PATH=$BOOTSTRAP_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
 export TMPDIR=$NIX_DIR/tmp
 export LD_LIBRARY_PATH=$BOOTSTRAP_DIR/lib:$LD_LIBRARY_PATH
+
+export EDITLINE_CFLAGS="-DREADLINE"
+export EDITLINE_LIBS="/usr/lib/x86_64-linux-gnu/libhistory.so /usr/lib/x86_64-linux-gnu/libreadline.so"
+
 
 mkdir -p $BOOTSTRAP_DIR || (echo "failed to create $BOOTSTRAP_DIR" && exit 1)
 mkdir -p $TMPDIR   || (echo "failed to create $TMPDIR"   && exit 1)
@@ -38,7 +43,8 @@ build_libseccomp() {
     baseurl="https://github.com/seccomp/libseccomp/releases/download"
     wget "${baseurl}/v${LIBSECCOMP_VERSION}/libseccomp-${LIBSECCOMP_VERSION}.tar.gz"
     tar xvzf libseccomp-${LIBSECCOMP_VERSION}.tar.gz
-    cd libseccomp*
+    echo libseccomp-${LIBSECCOMP_VERSION}
+    cd libseccomp-${LIBSECCOMP_VERSION}
     ./configure --prefix=$BOOTSTRAP_DIR
     make
     make install
@@ -56,7 +62,7 @@ build_nix() {
     fi
     bzip2 -d nix-*bz2
     tar xvf nix-*.tar
-    cd nix-*
+    cd nix-${NIX_VERSION}
     # TODO is this still needed after reverting to 2.0.4?
     # TODO if so, find from script path
     # patch src/libstore/local-store.cc /global/home/users/jefdaj/nix-no-root/local-store.patch
@@ -71,7 +77,7 @@ nix_build_nix() {
   export PKG_CONFIG_PATH=$BOOTSTRAP_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
   export LDFLAGS="-L$BOOTSTRAP_DIR/lib $LDFLAGS"
   export CPPFLAGS="-I$BOOTSTRAP_DIR/include $CPPFLAGS"
-  $BOOTSTRAP_DIR/bin/nix-env -i nix $@
+  $BOOTSTRAP_DIR/bin/nix-env -f '<nixpkgs>' -i nix $@
 }
 
 main() {
@@ -80,4 +86,5 @@ main() {
   build_nix && nix_build_nix $@
 }
 
-main $@
+#main $@
+nix_build_nix $@

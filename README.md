@@ -28,9 +28,9 @@ invocation:
     module load gcc/6.3.0
     module load boost/1.66.0
 
-    ./nix-no-root.sh \
-      /clusterfs/rosalind/users/jefdaj/nix-boot /clusterfs/rosalind/users/jefdaj/nix2 \
-      -j$(nproc) --keep-going --show-trace 2>&1 | tee nix-no-root.log
+    /working/wd15/git/nix-no-root/nix-no-root.sh \
+      /working/wd15/nix-boot /working/wd15/nix \
+      -j 8 --keep-going --show-trace 2>&1 | tee nix-no-root.log
 
 That will take a long time to run. Afterward, the last step is to symlink
 `~/.nix-profile` to `var/nix/profiles/default` in your nix dir, and add
@@ -57,3 +57,29 @@ Things that should work, but I haven't tried:
 
 * install Nix, then install Guix with `nix-env -i guix`
 * build on another host with same path + similar architecture and running kernel, then move the binaries
+
+## Changes for ruth
+
+ - Add `sandbox = False` to `~/.config/nix/nix.conf` and add `export
+   NIX_USER_CONF_FILES=/users/wd15/.config/nix/nix.conf` to the script
+   so that the conf file is seen. This is because of the issue
+   outlined [here](https://nixos.wiki/wiki/Nix_Installation_Guide)
+   under "User namespaces".
+
+ - Using `NIX_VERSION=2.2.2` as 2.3 needs a later version of gcc than
+   is on ruth currently. This only works with nixpkgs at 20.09
+
+ - A whole load of packages were installed on ruth to make this work
+   as they popped up during installation. Things like boost and
+   boost_context.
+
+ - Had to use readline instread of editline on debian. The
+   instructions for this are
+   [here](https://github.com/NixOS/nix/issues/2616#issuecomment-454948376)
+
+ - Install gperf. This didn't actually cause a failure in the config
+   just kept going through this, but was an issue in another part of
+   the build.
+
+ - Have `nix-env` use `-f '<nixpkgs>' in the script so that it finds
+   nixpkgs.
