@@ -81,3 +81,7 @@ Things that should work, but I haven't tried:
 
  - Have `nix-env` use `-f '<nixpkgs>' in the script so that it finds
    nixpkgs.
+
+ - Currently need to use `nix-shell --store
+   /working/wd15/nix/store`. I'm not sure if this is working correctly
+   as
